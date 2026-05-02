@@ -19,7 +19,13 @@ export const uploadAndAnalyzePdf = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
-    const storagePath = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}-${data.filename}`;
+    const safeName = data.filename
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .replace(/[^a-zA-Z0-9._-]+/g, "_") // só ASCII seguro
+      .replace(/_+/g, "_")
+      .slice(-120);
+    const storagePath = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}-${safeName}`;
 
     // 1) salva o PDF no storage
     const upload = await supabaseAdmin.storage.from(BUCKET).upload(storagePath, bytes, {
