@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AtivoAssetKeyRouteImport } from './routes/ativo.$assetKey'
 
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
@@ -22,31 +23,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AtivoAssetKeyRoute = AtivoAssetKeyRouteImport.update({
+  id: '/ativo/$assetKey',
+  path: '/ativo/$assetKey',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes'
+  fullPaths: '/' | '/configuracoes' | '/ativo/$assetKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes'
-  id: '__root__' | '/' | '/configuracoes'
+  to: '/' | '/configuracoes' | '/ativo/$assetKey'
+  id: '__root__' | '/' | '/configuracoes' | '/ativo/$assetKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  AtivoAssetKeyRoute: typeof AtivoAssetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ativo/$assetKey': {
+      id: '/ativo/$assetKey'
+      path: '/ativo/$assetKey'
+      fullPath: '/ativo/$assetKey'
+      preLoaderRoute: typeof AtivoAssetKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  AtivoAssetKeyRoute: AtivoAssetKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
