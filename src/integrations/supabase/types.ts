@@ -14,7 +14,179 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analyses: {
+        Row: {
+          ai_opinion: string | null
+          analysis_date: string
+          asset_id: string | null
+          asset_name: string | null
+          created_at: string
+          id: string
+          justification: string | null
+          kind: Database["public"]["Enums"]["report_kind"]
+          price: number | null
+          recommendation: Database["public"]["Enums"]["recommendation"] | null
+          report_id: string
+          risks: string[]
+          strengths: string[]
+          structured_data: Json
+          weaknesses: string[]
+        }
+        Insert: {
+          ai_opinion?: string | null
+          analysis_date?: string
+          asset_id?: string | null
+          asset_name?: string | null
+          created_at?: string
+          id?: string
+          justification?: string | null
+          kind?: Database["public"]["Enums"]["report_kind"]
+          price?: number | null
+          recommendation?: Database["public"]["Enums"]["recommendation"] | null
+          report_id: string
+          risks?: string[]
+          strengths?: string[]
+          structured_data?: Json
+          weaknesses?: string[]
+        }
+        Update: {
+          ai_opinion?: string | null
+          analysis_date?: string
+          asset_id?: string | null
+          asset_name?: string | null
+          created_at?: string
+          id?: string
+          justification?: string | null
+          kind?: Database["public"]["Enums"]["report_kind"]
+          price?: number | null
+          recommendation?: Database["public"]["Enums"]["recommendation"] | null
+          report_id?: string
+          risks?: string[]
+          strengths?: string[]
+          structured_data?: Json
+          weaknesses?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analyses_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_summaries: {
+        Row: {
+          alerts: Json
+          analyses_count: number
+          created_at: string
+          id: string
+          overview: string
+          priorities: Json
+          sentiment_by_class: Json
+          summary_date: string
+          updated_at: string
+        }
+        Insert: {
+          alerts?: Json
+          analyses_count?: number
+          created_at?: string
+          id?: string
+          overview: string
+          priorities?: Json
+          sentiment_by_class?: Json
+          summary_date: string
+          updated_at?: string
+        }
+        Update: {
+          alerts?: Json
+          analyses_count?: number
+          created_at?: string
+          id?: string
+          overview?: string
+          priorities?: Json
+          sentiment_by_class?: Json
+          summary_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          extracted_text: string | null
+          id: string
+          original_filename: string
+          received_at: string
+          source: Database["public"]["Enums"]["report_source"]
+          source_ref: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          id?: string
+          original_filename: string
+          received_at?: string
+          source?: Database["public"]["Enums"]["report_source"]
+          source_ref?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          id?: string
+          original_filename?: string
+          received_at?: string
+          source?: Database["public"]["Enums"]["report_source"]
+          source_ref?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      telegram_config: {
+        Row: {
+          bot_token: string | null
+          bot_username: string | null
+          enabled: boolean
+          id: number
+          last_error: string | null
+          last_polled_at: string | null
+          update_offset: number
+          updated_at: string
+        }
+        Insert: {
+          bot_token?: string | null
+          bot_username?: string | null
+          enabled?: boolean
+          id: number
+          last_error?: string | null
+          last_polled_at?: string | null
+          update_offset?: number
+          updated_at?: string
+        }
+        Update: {
+          bot_token?: string | null
+          bot_username?: string | null
+          enabled?: boolean
+          id?: number
+          last_error?: string | null
+          last_polled_at?: string | null
+          update_offset?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +195,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      recommendation: "buy" | "hold" | "sell" | "monitor"
+      report_kind: "fixed_income" | "stock" | "fii" | "crypto" | "other"
+      report_source: "upload" | "telegram"
+      report_status: "pending" | "extracting" | "analyzing" | "ready" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +325,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      recommendation: ["buy", "hold", "sell", "monitor"],
+      report_kind: ["fixed_income", "stock", "fii", "crypto", "other"],
+      report_source: ["upload", "telegram"],
+      report_status: ["pending", "extracting", "analyzing", "ready", "failed"],
+    },
   },
 } as const
