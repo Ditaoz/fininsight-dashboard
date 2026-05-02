@@ -28,7 +28,7 @@ function Settings() {
   const save = useMutation({
     mutationFn: (t: string) => saveFn({ data: { token: t } }),
     onSuccess: (res) => {
-      toast.success(`Conectado como @${res.username ?? "bot"}`);
+      toast.success(`Conectado como @${res?.username ?? "bot"}`);
       setToken("");
       queryClient.invalidateQueries({ queryKey: ["telegram-status"] });
     },
