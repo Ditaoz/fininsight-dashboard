@@ -68,7 +68,7 @@ export const uploadAndAnalyzePdf = createServerFn({ method: "POST" })
           risks: a.risks,
           ai_opinion: a.ai_opinion,
           justification: a.justification,
-          structured_data: a.structured_data,
+          structured_data: a.structured_data as never,
         }));
         const ins = await supabaseAdmin.from("analyses").insert(rows);
         if (ins.error) throw new Error(ins.error.message);
