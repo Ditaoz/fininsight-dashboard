@@ -36,7 +36,7 @@ function Settings() {
   });
 
   const disable = useMutation({
-    mutationFn: () => disableFn({ data: undefined as never }),
+    mutationFn: () => disableFn(),
     onSuccess: () => {
       toast.success("Bot desativado");
       queryClient.invalidateQueries({ queryKey: ["telegram-status"] });
