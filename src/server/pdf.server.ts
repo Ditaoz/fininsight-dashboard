@@ -1,9 +1,12 @@
-// PDF text extraction. Server-only. Uses pdf-parse with a Node Buffer.
-import pdfParse from "pdf-parse";
+// PDF text extraction. Server-only. Uses pdf-parse v2 (PDFParse class).
+import { PDFParse } from "pdf-parse";
 
 export async function extractPdfText(bytes: Uint8Array): Promise<string> {
-  // pdf-parse expects a Node Buffer
-  const buffer = Buffer.from(bytes);
-  const result = await pdfParse(buffer);
-  return result.text ?? "";
+  const parser = new PDFParse({ data: bytes });
+  try {
+    const result = await parser.getText();
+    return result.text ?? "";
+  } finally {
+    await parser.destroy().catch(() => {});
+  }
 }
