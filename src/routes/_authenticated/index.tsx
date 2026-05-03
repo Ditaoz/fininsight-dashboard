@@ -281,8 +281,7 @@ function Dashboard() {
         )}
 
         {/* Panorama */}
-        {analyses.length > 0 && (
-          <section className="space-y-4">
+        <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 Panorama do dia
@@ -372,16 +371,14 @@ function Dashboard() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Clique em "Gerar" para consolidar a leitura do dia.
+              <p className="text-sm text-muted-foreground bg-card/50 p-6 rounded-xl border border-dashed border-border text-center">
+                Adicione PDFs e depois clique em "Panorama do Dia" para consolidar a leitura geral.
               </p>
             )}
           </section>
-        )}
 
         {/* Ativos */}
-        {analyses.length > 0 && (
-          <section className="space-y-4">
+        <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 Ativos analisados hoje
@@ -544,7 +541,6 @@ function Dashboard() {
               </div>
             )}
           </section>
-        )}
 
         {analyses.length === 0 && isLoading && (
           <div className="text-center py-12">
