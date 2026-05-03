@@ -306,7 +306,7 @@ export async function consolidateDailySummary(
         {
           role: "system",
           content:
-            "Você é um analista de carteira que consolida o panorama do dia em português. Seja direto e priorize o que importa.",
+            "Você é um Analista Chefe de uma Mesa de Operações Institucional. Sua tarefa é consolidar todas as análises do dia em um 'Panorama do Dia' altamente técnico, opinativo e fundamentado. Avalie as informações captadas dos PDFs, cruze os dados, aponte tendências claras de mercado, demonstre convicção e seja criterioso. Não faça apenas um resumo genérico; dê um parecer técnico de especialista.",
         },
         {
           role: "user",

@@ -151,17 +151,29 @@ function Dashboard() {
 
   const handleFiles = useCallback(
     async (files: FileList | null) => {
-      if (!files) return;
+      if (!files || files.length === 0) return;
+      let uploadedCount = 0;
+      
       for (const file of Array.from(files)) {
         if (file.type !== "application/pdf") {
           toast.error(`${file.name}: somente PDF`);
           continue;
         }
-        toast.info(`Processando ${file.name}…`);
-        await upload.mutateAsync(file);
+        toast.info(`Analisando ${file.name}…`);
+        try {
+          await upload.mutateAsync(file);
+          uploadedCount++;
+        } catch (e) {
+          // err handled in mutation
+        }
+      }
+
+      if (uploadedCount > 0) {
+        toast.info("Gerando Panorama do Dia com base nos novos dados...");
+        consolidate.mutate();
       }
     },
-    [upload],
+    [upload, consolidate],
   );
 
   const analyses = todayData?.analyses ?? [];
