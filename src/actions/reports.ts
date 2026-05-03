@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { extractPdfText } from "../server/pdf.server";
+import { analyzeReportText, consolidateDailySummary } from "../server/ai.server";
 
 const BUCKET = "reports";
 
@@ -37,10 +40,6 @@ const assetHistorySchema = z.object({
 export const uploadAndAnalyzePdf = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => uploadSchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { extractPdfText } = await import("../server/pdf.server");
-    const { analyzeReportText } = await import("../server/ai.server");
-
     const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
     const safeName = data.filename
       .normalize("NFD")
@@ -115,9 +114,6 @@ export const uploadAndAnalyzePdf = createServerFn({ method: "POST" })
 export const generateDailySummary = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => summarySchema.parse(input ?? {}))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { consolidateDailySummary } = await import("../server/ai.server");
-
     const date = data.date ?? new Date().toISOString().slice(0, 10);
     const { data: rows, error } = await supabaseAdmin
       .from("analyses")
@@ -163,7 +159,6 @@ export const generateDailySummary = createServerFn({ method: "POST" })
 // ---- Telegram config --------------------------------------------------------
 
 export const getTelegramStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("telegram_config")
     .select("enabled,bot_username,last_polled_at,last_error,bot_token")
@@ -182,7 +177,6 @@ export const getTelegramStatus = createServerFn({ method: "GET" }).handler(async
 export const saveTelegramToken = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => tokenSchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const resp = await fetch(`https://api.telegram.org/bot${data.token}/getMe`);
     const json = (await resp.json()) as {
       ok: boolean;
@@ -208,7 +202,6 @@ export const saveTelegramToken = createServerFn({ method: "POST" })
   });
 
 export const disableTelegram = createServerFn({ method: "POST" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin
     .from("telegram_config")
     .update({ enabled: false })
@@ -222,7 +215,6 @@ export const disableTelegram = createServerFn({ method: "POST" }).handler(async 
 export const getReportSignedUrl = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => signedUrlSchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: report, error } = await supabaseAdmin
       .from("reports")
       .select("storage_path,original_filename")
@@ -244,7 +236,6 @@ export const getReportSignedUrl = createServerFn({ method: "POST" })
 export const getAssetHistory = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => assetHistorySchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // assetKey pode ser asset_id (ex "PETR4") ou asset_name (fallback)
     const { data: byId, error: errId } = await supabaseAdmin
       .from("analyses")
