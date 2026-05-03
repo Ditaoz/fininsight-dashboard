@@ -44,24 +44,19 @@ function Settings() {
   });
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-border-strong/60 bg-surface/40 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto max-w-3xl px-6 py-4 flex items-center gap-3">
-          <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="font-mono font-semibold">CONFIGURAÇÕES</h1>
-        </div>
+    <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
+      <header>
+        <h1 className="font-display text-3xl tracking-tight">Configurações</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Integrações e preferências da sua mesa.
+        </p>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-8 space-y-8">
-        <section className="rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center gap-3 mb-1">
-            <Bot className="h-5 w-5 text-primary" />
-            <h2 className="font-mono text-lg font-semibold">Bot do Telegram</h2>
-          </div>
+      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-1">
+          <Bot className="h-5 w-5 text-accent" />
+          <h2 className="font-display text-xl">Bot do Telegram</h2>
+        </div>
           <p className="text-sm text-muted-foreground mb-6">
             Conecte um bot pessoal para receber PDFs encaminhados automaticamente.
           </p>

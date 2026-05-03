@@ -10,63 +10,67 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AtivoAssetKeyRouteImport } from './routes/ativo.$assetKey'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedAtivoAssetKeyRouteImport } from './routes/_authenticated/ativo.$assetKey'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AtivoAssetKeyRoute = AtivoAssetKeyRouteImport.update({
-  id: '/ativo/$assetKey',
-  path: '/ativo/$assetKey',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAtivoAssetKeyRoute =
+  AuthenticatedAtivoAssetKeyRouteImport.update({
+    id: '/ativo/$assetKey',
+    path: '/ativo/$assetKey',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
+  '/': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/ativo/$assetKey': typeof AuthenticatedAtivoAssetKeyRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
+  '/': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/ativo/$assetKey': typeof AuthenticatedAtivoAssetKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/configuracoes': typeof ConfiguracoesRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/ativo/$assetKey': typeof AtivoAssetKeyRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/ativo/$assetKey': typeof AuthenticatedAtivoAssetKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
+  fullPaths: '/' | '/login' | '/configuracoes' | '/ativo/$assetKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
-  id: '__root__' | '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
+  to: '/' | '/login' | '/configuracoes' | '/ativo/$assetKey'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/ativo/$assetKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
-  AtivoAssetKeyRoute: typeof AtivoAssetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,35 +82,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/configuracoes': {
-      id: '/configuracoes'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
       path: '/configuracoes'
       fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ativo/$assetKey': {
-      id: '/ativo/$assetKey'
+    '/_authenticated/ativo/$assetKey': {
+      id: '/_authenticated/ativo/$assetKey'
       path: '/ativo/$assetKey'
       fullPath: '/ativo/$assetKey'
-      preLoaderRoute: typeof AtivoAssetKeyRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAtivoAssetKeyRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedAtivoAssetKeyRoute: typeof AuthenticatedAtivoAssetKeyRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedAtivoAssetKeyRoute: AuthenticatedAtivoAssetKeyRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ConfiguracoesRoute: ConfiguracoesRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
-  AtivoAssetKeyRoute: AtivoAssetKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

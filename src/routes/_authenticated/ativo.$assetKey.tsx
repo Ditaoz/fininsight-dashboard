@@ -7,7 +7,7 @@ import { getAssetHistory, getReportSignedUrl } from "@/server/reports.functions"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/ativo/$assetKey")({
+export const Route = createFileRoute("/_authenticated/ativo/$assetKey")({
   component: AssetDetail,
 });
 
