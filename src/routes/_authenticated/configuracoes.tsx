@@ -8,7 +8,7 @@ import { getTelegramStatus, saveTelegramToken, disableTelegram } from "@/server/
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/configuracoes")({
+export const Route = createFileRoute("/_authenticated/configuracoes")({
   component: Settings,
 });
 
