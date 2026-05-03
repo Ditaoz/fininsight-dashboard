@@ -34,28 +34,26 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      {/* Brand panel */}
-      <aside className="hidden lg:flex flex-col items-center justify-center p-12 bg-sidebar text-sidebar-foreground relative overflow-hidden">
-        <img src="/wolf-logo.png" alt="Wolf Logo" className="w-64 h-64 object-contain relative z-10 mix-blend-screen opacity-90" />
-        <div className="absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent to-sidebar/50" />
-      </aside>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background relative overflow-hidden">
+      {/* Background ambient light */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-[600px] bg-sidebar/10 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Form */}
-      <main className="flex items-center justify-center p-6 sm:p-12">
-        <form onSubmit={submit} className="w-full max-w-sm space-y-8">
-          <div className="lg:hidden flex justify-center mb-8">
-            <img src="/wolf-logo.png" alt="Wolf Logo" className="w-24 h-24 object-contain mix-blend-multiply dark:mix-blend-screen" />
-          </div>
+      {/* Main Content */}
+      <main className="w-full max-w-sm z-10 flex flex-col items-center">
+        {/* Blended Logo at Top Center */}
+        <div className="mb-8 w-40 h-40 relative flex items-center justify-center">
+          <img 
+            src="/howling-wolf.png" 
+            alt="Howling Wolf Logo" 
+            className="w-full h-full object-contain mix-blend-screen opacity-90" 
+          />
+        </div>
 
-          <div className="space-y-2 text-center lg:text-left">
-            <h2 className="font-display text-3xl font-bold tracking-tight">Entrar</h2>
-          </div>
-
+        {/* Form */}
+        <form onSubmit={submit} className="w-full space-y-6 bg-card/40 backdrop-blur-xl border border-border/30 p-8 rounded-3xl shadow-2xl">
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-muted-foreground ml-1">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -64,10 +62,11 @@ function LoginPage() {
                 required
                 autoComplete="email"
                 autoFocus
+                className="bg-background/50 border-border/50 h-11 rounded-xl"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-muted-foreground ml-1">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -75,15 +74,16 @@ function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                className="bg-background/50 border-border/50 h-11 rounded-xl"
               />
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
+          <Button type="submit" className="w-full h-11 text-base rounded-xl mt-2" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground pt-4">
+          <p className="text-xs text-center text-muted-foreground/60 pt-4">
             Acesso restrito. Cadastros estão desabilitados.
           </p>
         </form>
