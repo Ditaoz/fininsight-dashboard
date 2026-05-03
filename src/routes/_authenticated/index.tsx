@@ -11,11 +11,6 @@ import {
 } from "@/actions/reports";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Upload,
@@ -171,8 +166,7 @@ function Dashboard() {
       }
 
       if (uploadedCount > 0) {
-        toast.info("Gerando Panorama do Dia com base nos novos dados...");
-        consolidate.mutate();
+        toast.success(`Leitura concluída. Foram lidos ${uploadedCount} PDFs.`);
       }
     },
     [upload, consolidate],
@@ -295,17 +289,17 @@ function Dashboard() {
               </h2>
               <Button
                 onClick={() => consolidate.mutate()}
-                disabled={consolidate.isPending}
-                variant="ghost"
+                disabled={consolidate.isPending || analyses.length === 0}
+                variant="default"
                 size="sm"
-                className="gap-1.5 text-xs"
+                className="gap-2 shadow-md shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
               >
                 {consolidate.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Sparkles className="h-4 w-4" />
                 )}
-                {summary ? "Atualizar" : "Gerar"}
+                Panorama do Dia
               </Button>
             </div>
 
@@ -410,131 +404,141 @@ function Dashboard() {
                 Nenhum ativo nesse filtro.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-6">
                 {grouped.map((g) => {
                   const consolidated = consolidateRecommendation(g.items);
                   const meta = consolidated ? REC_META[consolidated] : null;
                   return (
-                    <Collapsible
+                    <div
                       key={g.key}
-                      defaultOpen={grouped.length <= 3}
                       className="rounded-xl border border-border bg-card overflow-hidden shadow-sm"
                     >
-                      <CollapsibleTrigger className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/40 transition-colors text-left group">
-                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90" />
+                      <div className="w-full flex items-center justify-between gap-3 px-5 py-4 border-b border-border bg-primary/5">
                         <div className="flex-1 min-w-0">
-                          <p className="font-mono font-semibold truncate">{g.ticker}</p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="font-mono font-bold text-lg truncate text-foreground">{g.ticker}</p>
+                          <p className="text-sm text-muted-foreground truncate">
                             {g.name === g.ticker ? KIND_LABEL[g.kind] : g.name}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <Badge variant="outline" className="text-[10px]">
-                            {KIND_LABEL[g.kind]}
-                          </Badge>
-                          {meta && (
-                            <span
-                              className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${meta.className}`}
-                            >
-                              {meta.label}
-                            </span>
-                          )}
-                          <span className="text-xs text-muted-foreground tabular-nums">
-                            {g.items.length}
+                        <div className="flex flex-col items-end gap-2 shrink-0">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs py-0.5">
+                              {KIND_LABEL[g.kind]}
+                            </Badge>
+                            {meta && (
+                              <span
+                                className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${meta.className}`}
+                              >
+                                {meta.label}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {g.items.length} análise(s) vinculada(s)
                           </span>
                         </div>
-                      </CollapsibleTrigger>
+                      </div>
 
-                      <CollapsibleContent>
-                        <div className="border-t border-border divide-y divide-border">
-                          {g.items.map((a) => (
-                            <article key={a.id} className="px-5 py-4 space-y-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <p className="text-xs text-muted-foreground font-mono">
-                                    {new Date(a.created_at).toLocaleString("pt-BR", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                                  </p>
-                                  <p className="text-sm mt-0.5 truncate">
-                                    {a.reports?.original_filename ?? "Relatório"}
-                                  </p>
-                                </div>
-                                {a.recommendation && REC_META[a.recommendation] && (
-                                  <span
-                                    className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${REC_META[a.recommendation].className}`}
-                                  >
-                                    {REC_META[a.recommendation].label}
-                                  </span>
-                                )}
+                      <div className="divide-y divide-border">
+                        {g.items.map((a) => (
+                          <article key={a.id} className="p-5 space-y-4">
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <div>
+                                <p className="text-sm font-medium">
+                                  {a.reports?.original_filename ?? "Relatório"}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  Recebido em {new Date(a.created_at).toLocaleString("pt-BR", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </p>
                               </div>
-
-                              {a.ai_opinion && (
-                                <p className="text-sm leading-relaxed">{a.ai_opinion}</p>
+                              {a.recommendation && REC_META[a.recommendation] && (
+                                <span
+                                  className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${REC_META[a.recommendation].className}`}
+                                >
+                                  {REC_META[a.recommendation].label}
+                                </span>
                               )}
+                            </div>
 
-                              {(a.strengths?.length || a.weaknesses?.length) ? (
-                                <div className="grid sm:grid-cols-2 gap-3">
-                                  {a.strengths && a.strengths.length > 0 && (
-                                    <div>
-                                      <p className="text-[10px] uppercase tracking-wider text-success mb-1">
-                                        Fortes
-                                      </p>
-                                      <ul className="text-xs text-muted-foreground space-y-0.5">
-                                        {a.strengths.slice(0, 4).map((s, i) => (
-                                          <li key={i}>+ {s}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                  {a.weaknesses && a.weaknesses.length > 0 && (
-                                    <div>
-                                      <p className="text-[10px] uppercase tracking-wider text-destructive mb-1">
-                                        Fracos
-                                      </p>
-                                      <ul className="text-xs text-muted-foreground space-y-0.5">
-                                        {a.weaknesses.slice(0, 4).map((s, i) => (
-                                          <li key={i}>− {s}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </div>
-                              ) : null}
+                            {a.ai_opinion && (
+                              <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
+                                <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+                                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                                  Parecer da IA
+                                </h4>
+                                <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{a.ai_opinion}</p>
+                              </div>
+                            )}
 
-                              <div className="flex items-center gap-2 pt-1">
-                                {a.reports?.id && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 gap-1.5 text-xs"
-                                    onClick={() => download.mutate(a.reports!.id)}
-                                    disabled={download.isPending}
-                                  >
-                                    <Download className="h-3 w-3" />
-                                    PDF original
-                                  </Button>
+                            {(a.strengths?.length || a.weaknesses?.length) ? (
+                              <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                                {a.strengths && a.strengths.length > 0 && (
+                                  <div className="bg-success/5 p-3 rounded-lg border border-success/10">
+                                    <p className="text-xs uppercase tracking-wider text-success font-semibold mb-2">
+                                      Pontos Fortes
+                                    </p>
+                                    <ul className="text-sm text-foreground/90 space-y-1.5">
+                                      {a.strengths.map((s, i) => (
+                                        <li key={i} className="flex gap-2">
+                                          <span className="text-success select-none">+</span>
+                                          <span>{s}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {a.weaknesses && a.weaknesses.length > 0 && (
+                                  <div className="bg-destructive/5 p-3 rounded-lg border border-destructive/10">
+                                    <p className="text-xs uppercase tracking-wider text-destructive font-semibold mb-2">
+                                      Riscos & Fraquezas
+                                    </p>
+                                    <ul className="text-sm text-foreground/90 space-y-1.5">
+                                      {a.weaknesses.map((s, i) => (
+                                        <li key={i} className="flex gap-2">
+                                          <span className="text-destructive select-none">−</span>
+                                          <span>{s}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
                                 )}
                               </div>
-                            </article>
-                          ))}
+                            ) : null}
 
-                          <div className="px-5 py-3 bg-muted/30">
-                            <Link
-                              to="/ativo/$assetKey"
-                              params={{ assetKey: g.key }}
-                              className="text-xs text-accent inline-flex items-center gap-1 hover:underline"
-                            >
-                              Ver histórico completo
-                              <ArrowUpRight className="h-3 w-3" />
-                            </Link>
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                            <div className="flex items-center gap-2 pt-2">
+                              {a.reports?.id && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 gap-1.5 text-xs text-muted-foreground"
+                                  onClick={() => download.mutate(a.reports!.id)}
+                                  disabled={download.isPending}
+                                >
+                                  <Download className="h-3 w-3" />
+                                  Ver PDF Original
+                                </Button>
+                              )}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+
+                      <div className="px-5 py-3 bg-muted/20 border-t border-border flex justify-end">
+                        <Link
+                          to="/ativo/$assetKey"
+                          params={{ assetKey: g.key }}
+                          className="text-xs text-primary font-medium inline-flex items-center gap-1 hover:underline"
+                        >
+                          Análise Histórica Completa do Ativo
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
