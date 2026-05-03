@@ -27,6 +27,8 @@ import {
   ArrowUpRight,
   Plus,
   FileText,
+  Globe,
+  TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -179,6 +181,14 @@ function Dashboard() {
   const analyses = todayData?.analyses ?? [];
   const summary = todayData?.summary;
 
+  let macroText = "";
+  let overviewText = summary?.overview ?? "";
+  if (summary?.overview?.includes("---MACRO---")) {
+    const parts = summary.overview.split("---MACRO---");
+    macroText = parts[0].trim();
+    overviewText = parts[1].trim();
+  }
+
   const grouped = useMemo(() => {
     const filtered = filter === "all" ? analyses : analyses.filter((a) => a.kind === filter);
     const map = new Map<string, { key: string; ticker: string; name: string; kind: string; items: AnalysisRow[] }>();
@@ -300,8 +310,30 @@ function Dashboard() {
             </div>
 
             {summary ? (
-              <div className="rounded-xl border border-border bg-card p-6 space-y-5 shadow-sm">
-                <p className="text-sm leading-relaxed">{summary.overview}</p>
+              <div className="space-y-6">
+                {macroText && (
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm relative overflow-hidden">
+                    <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                      <Globe className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-semibold tracking-wide text-primary uppercase">
+                        Cenário Macro & Visão de Mercado
+                      </h3>
+                    </div>
+                    <p className="text-sm leading-relaxed text-card-foreground/90 relative z-10 whitespace-pre-wrap">
+                      {macroText}
+                    </p>
+                  </div>
+                )}
+
+                <div className="rounded-xl border border-border bg-card p-6 space-y-5 shadow-sm">
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                      Resumo da Carteira
+                    </h3>
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{overviewText}</p>
 
                 {Array.isArray(summary.priorities) && summary.priorities.length > 0 && (
                   <div>
@@ -343,6 +375,7 @@ function Dashboard() {
                     </ul>
                   </div>
                 )}
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">

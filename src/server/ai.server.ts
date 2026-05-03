@@ -210,6 +210,7 @@ Analise e chame a ferramenta register_report_analysis.`;
 // ---- Daily summary -----------------------------------------------------------
 
 export interface DailySummaryResult {
+  macro_scenario: string;
   overview: string;
   priorities: Array<{ asset: string; action: string; reason: string }>;
   alerts: Array<{ asset: string; alert: string }>;
@@ -224,9 +225,13 @@ const SUMMARY_TOOL = {
     parameters: {
       type: "object",
       properties: {
+        macro_scenario: {
+          type: "string",
+          description: "Análise profunda do cenário macroeconômico atual (Brasil e Mundo) e da bolsa. Como proceder com os investimentos diante desse cenário? (Em português, 1 ou 2 parágrafos fortes).",
+        },
         overview: {
           type: "string",
-          description: "Resumo executivo da carteira no dia, em português, 3-6 frases.",
+          description: "Resumo executivo específico da carteira analisada no dia, em português, 3-6 frases.",
         },
         priorities: {
           type: "array",
@@ -262,7 +267,7 @@ const SUMMARY_TOOL = {
           additionalProperties: { type: "string" },
         },
       },
-      required: ["overview", "priorities", "alerts", "sentiment_by_class"],
+      required: ["macro_scenario", "overview", "priorities", "alerts", "sentiment_by_class"],
       additionalProperties: false,
     },
   },

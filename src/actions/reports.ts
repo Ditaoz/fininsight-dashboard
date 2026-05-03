@@ -142,7 +142,7 @@ export const generateDailySummary = createServerFn({ method: "POST" })
       .upsert(
         {
           summary_date: date,
-          overview: summary.overview,
+          overview: `${summary.macro_scenario}\n\n---MACRO---\n\n${summary.overview}`,
           priorities: summary.priorities,
           alerts: summary.alerts,
           sentiment_by_class: summary.sentiment_by_class,
