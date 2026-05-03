@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   uploadAndAnalyzePdf,
   generateDailySummary,
-  getTelegramStatus,
   getReportSignedUrl,
 } from "@/server/reports.functions";
 import { Button } from "@/components/ui/button";
@@ -20,18 +19,17 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Upload,
-  FileText,
   Sparkles,
-  Settings as SettingsIcon,
   Loader2,
   AlertTriangle,
   ChevronRight,
   Download,
   ArrowUpRight,
   Plus,
+  FileText,
 } from "lucide-react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
 });
 
@@ -44,10 +42,10 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 const REC_META: Record<string, { label: string; className: string }> = {
-  buy: { label: "Aportar", className: "bg-success/10 text-success border-success/20" },
-  hold: { label: "Segurar", className: "bg-warning/10 text-warning border-warning/20" },
-  sell: { label: "Vender", className: "bg-destructive/10 text-destructive border-destructive/20" },
-  monitor: { label: "Monitorar", className: "bg-info/10 text-info border-info/20" },
+  buy: { label: "Aportar", className: "bg-success/10 text-success border-success/30" },
+  hold: { label: "Segurar", className: "bg-warning/15 text-warning-foreground border-warning/40" },
+  sell: { label: "Vender", className: "bg-destructive/10 text-destructive border-destructive/30" },
+  monitor: { label: "Monitorar", className: "bg-info/10 text-info border-info/30" },
 };
 
 function fileToBase64(file: File): Promise<string> {
@@ -97,16 +95,10 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const uploadFn = useServerFn(uploadAndAnalyzePdf);
   const summaryFn = useServerFn(generateDailySummary);
-  const telegramStatusFn = useServerFn(getTelegramStatus);
   const signFn = useServerFn(getReportSignedUrl);
 
   const [dragOver, setDragOver] = useState(false);
   const [filter, setFilter] = useState<string>("all");
-
-  const { data: telegram } = useQuery({
-    queryKey: ["telegram-status"],
-    queryFn: () => telegramStatusFn(),
-  });
 
   const { data: todayData, isLoading } = useQuery({
     queryKey: ["analyses", today],
@@ -135,6 +127,7 @@ function Dashboard() {
     onSuccess: (res) => {
       toast.success(`Análise pronta — ${res?.assetsCount ?? 0} ativo(s)`);
       queryClient.invalidateQueries({ queryKey: ["analyses", today] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-assets"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Falha na análise"),
   });
@@ -180,9 +173,8 @@ function Dashboard() {
     for (const a of filtered) {
       const key = a.asset_id ?? a.asset_name ?? "Sem identificação";
       const existing = map.get(key);
-      if (existing) {
-        existing.items.push(a);
-      } else {
+      if (existing) existing.items.push(a);
+      else
         map.set(key, {
           key,
           ticker: a.asset_id ?? a.asset_name ?? "—",
@@ -190,21 +182,16 @@ function Dashboard() {
           kind: a.kind,
           items: [a],
         });
-      }
     }
-    // sort items inside group by date desc
     const groups = Array.from(map.values());
-    for (const g of groups) {
-      g.items.sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
-    }
-    // sort groups by ticker
+    for (const g of groups) g.items.sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
     groups.sort((a, b) => a.ticker.localeCompare(b.ticker));
     return groups;
   }, [analyses, filter]);
 
   return (
     <div
-      className="min-h-screen relative"
+      className="relative"
       onDragOver={(e) => {
         e.preventDefault();
         setDragOver(true);
@@ -219,74 +206,60 @@ function Dashboard() {
         handleFiles(e.dataTransfer.files);
       }}
     >
-      {/* Drag overlay */}
       {dragOver && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-center pointer-events-none">
-          <div className="rounded-2xl border-2 border-dashed border-primary p-12 text-center">
+        <div className="fixed inset-0 z-50 bg-background/85 backdrop-blur-sm grid place-items-center pointer-events-none">
+          <div className="rounded-2xl border-2 border-dashed border-primary p-12 text-center bg-card">
             <Upload className="h-12 w-12 text-primary mx-auto mb-3" />
-            <p className="text-lg font-semibold">Solte para analisar</p>
+            <p className="text-lg font-display">Solte para analisar</p>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-20">
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
+      <div className="mx-auto max-w-5xl px-6 py-10 space-y-12">
+        {/* Title */}
+        <header className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-base font-semibold tracking-tight">Mesa de Análise</h1>
-            <p className="text-xs text-muted-foreground">
+            <h1 className="font-display text-3xl tracking-tight">Mesa de Análise</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               {new Date().toLocaleDateString("pt-BR", {
                 weekday: "long",
                 day: "2-digit",
                 month: "long",
+                year: "numeric",
               })}
               {" · "}
               {analyses.length} análise(s) · {grouped.length} ativo(s)
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <label>
-              <input
-                type="file"
-                accept="application/pdf"
-                multiple
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-                disabled={upload.isPending}
-              />
-              <Button asChild size="sm" className="gap-1.5">
-                <span className="cursor-pointer">
-                  {upload.isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Plus className="h-3.5 w-3.5" />
-                  )}
-                  Adicionar PDF
-                </span>
-              </Button>
-            </label>
-            <Link to="/configuracoes">
-              <Button variant="ghost" size="icon">
-                <SettingsIcon className="h-4 w-4" />
-                <span
-                  className={`absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full ${
-                    telegram?.enabled ? "bg-success" : "bg-muted-foreground/30"
-                  }`}
-                />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+          <label>
+            <input
+              type="file"
+              accept="application/pdf"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
+              disabled={upload.isPending}
+            />
+            <Button asChild size="sm" className="gap-1.5">
+              <span className="cursor-pointer">
+                {upload.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Plus className="h-3.5 w-3.5" />
+                )}
+                Adicionar PDF
+              </span>
+            </Button>
+          </label>
+        </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10 space-y-12">
         {/* Empty hint */}
         {analyses.length === 0 && !isLoading && (
-          <section className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
+          <section className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
             <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <h2 className="text-base font-medium">Solte um PDF em qualquer lugar</h2>
+            <h2 className="font-display text-lg">Solte um PDF em qualquer lugar</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Ou use o botão "Adicionar PDF" no topo. Suporta múltiplos arquivos.
+              Ou use o botão "Adicionar PDF". Suporta múltiplos arquivos.
             </p>
           </section>
         )}
@@ -295,7 +268,9 @@ function Dashboard() {
         {analyses.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-muted-foreground">Panorama do dia</h2>
+              <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Panorama do dia
+              </h2>
               <Button
                 onClick={() => consolidate.mutate()}
                 disabled={consolidate.isPending}
@@ -313,7 +288,7 @@ function Dashboard() {
             </div>
 
             {summary ? (
-              <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+              <div className="rounded-xl border border-border bg-card p-6 space-y-5 shadow-sm">
                 <p className="text-sm leading-relaxed">{summary.overview}</p>
 
                 {Array.isArray(summary.priorities) && summary.priorities.length > 0 && (
@@ -322,31 +297,27 @@ function Dashboard() {
                       Prioridades
                     </p>
                     <ul className="space-y-1.5">
-                      {(
-                        summary.priorities as Array<{
-                          asset: string;
-                          action: string;
-                          reason: string;
-                        }>
-                      ).map((p, i) => (
-                        <li key={i} className="text-sm flex gap-2">
-                          <span className="text-primary mt-0.5">›</span>
-                          <span>
-                            <span className="font-mono font-medium">{p.asset}</span>
-                            <Badge variant="outline" className="mx-2 text-[10px]">
-                              {p.action}
-                            </Badge>
-                            <span className="text-muted-foreground">{p.reason}</span>
-                          </span>
-                        </li>
-                      ))}
+                      {(summary.priorities as Array<{ asset: string; action: string; reason: string }>).map(
+                        (p, i) => (
+                          <li key={i} className="text-sm flex gap-2">
+                            <span className="text-accent mt-0.5">›</span>
+                            <span>
+                              <span className="font-mono font-medium">{p.asset}</span>
+                              <Badge variant="outline" className="mx-2 text-[10px]">
+                                {p.action}
+                              </Badge>
+                              <span className="text-muted-foreground">{p.reason}</span>
+                            </span>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </div>
                 )}
 
                 {Array.isArray(summary.alerts) && summary.alerts.length > 0 && (
                   <div>
-                    <p className="text-[11px] uppercase tracking-wider text-warning mb-2 flex items-center gap-1.5">
+                    <p className="text-[11px] uppercase tracking-wider text-warning-foreground mb-2 flex items-center gap-1.5">
                       <AlertTriangle className="h-3 w-3" />
                       Alertas
                     </p>
@@ -373,24 +344,16 @@ function Dashboard() {
         {analyses.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-muted-foreground">Ativos analisados</h2>
+              <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Ativos analisados hoje
+              </h2>
               <Tabs value={filter} onValueChange={setFilter}>
                 <TabsList className="h-8">
-                  <TabsTrigger value="all" className="text-xs h-6">
-                    Todos
-                  </TabsTrigger>
-                  <TabsTrigger value="stock" className="text-xs h-6">
-                    Ações
-                  </TabsTrigger>
-                  <TabsTrigger value="fii" className="text-xs h-6">
-                    FIIs
-                  </TabsTrigger>
-                  <TabsTrigger value="crypto" className="text-xs h-6">
-                    Cripto
-                  </TabsTrigger>
-                  <TabsTrigger value="fixed_income" className="text-xs h-6">
-                    Renda Fixa
-                  </TabsTrigger>
+                  <TabsTrigger value="all" className="text-xs h-6">Todos</TabsTrigger>
+                  <TabsTrigger value="stock" className="text-xs h-6">Ações</TabsTrigger>
+                  <TabsTrigger value="fii" className="text-xs h-6">FIIs</TabsTrigger>
+                  <TabsTrigger value="crypto" className="text-xs h-6">Cripto</TabsTrigger>
+                  <TabsTrigger value="fixed_income" className="text-xs h-6">Renda Fixa</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -410,17 +373,15 @@ function Dashboard() {
                     <Collapsible
                       key={g.key}
                       defaultOpen={grouped.length <= 3}
-                      className="rounded-xl border border-border bg-card overflow-hidden group"
+                      className="rounded-xl border border-border bg-card overflow-hidden shadow-sm"
                     >
-                      <CollapsibleTrigger className="w-full flex items-center gap-3 px-5 py-4 hover:bg-accent/40 transition-colors text-left">
-                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform data-[state=open]:rotate-90 group-data-[state=open]:rotate-90" />
-                        <div className="flex-1 min-w-0 flex items-center gap-3">
-                          <div className="min-w-0">
-                            <p className="font-mono font-semibold truncate">{g.ticker}</p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {g.name === g.ticker ? KIND_LABEL[g.kind] : g.name}
-                            </p>
-                          </div>
+                      <CollapsibleTrigger className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/40 transition-colors text-left group">
+                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-mono font-semibold truncate">{g.ticker}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {g.name === g.ticker ? KIND_LABEL[g.kind] : g.name}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge variant="outline" className="text-[10px]">
@@ -470,7 +431,7 @@ function Dashboard() {
                                 <p className="text-sm leading-relaxed">{a.ai_opinion}</p>
                               )}
 
-                              {(a.strengths?.length || a.weaknesses?.length) && (
+                              {(a.strengths?.length || a.weaknesses?.length) ? (
                                 <div className="grid sm:grid-cols-2 gap-3">
                                   {a.strengths && a.strengths.length > 0 && (
                                     <div>
@@ -497,7 +458,7 @@ function Dashboard() {
                                     </div>
                                   )}
                                 </div>
-                              )}
+                              ) : null}
 
                               <div className="flex items-center gap-2 pt-1">
                                 {a.reports?.id && (
@@ -516,11 +477,11 @@ function Dashboard() {
                             </article>
                           ))}
 
-                          <div className="px-5 py-3 bg-background/40">
+                          <div className="px-5 py-3 bg-muted/30">
                             <Link
                               to="/ativo/$assetKey"
                               params={{ assetKey: g.key }}
-                              className="text-xs text-primary inline-flex items-center gap-1 hover:underline"
+                              className="text-xs text-accent inline-flex items-center gap-1 hover:underline"
                             >
                               Ver histórico completo
                               <ArrowUpRight className="h-3 w-3" />
@@ -536,7 +497,6 @@ function Dashboard() {
           </section>
         )}
 
-        {/* Footer hint */}
         {analyses.length === 0 && isLoading && (
           <div className="text-center py-12">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
@@ -549,7 +509,7 @@ function Dashboard() {
             Aguardando primeiro relatório do dia
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
