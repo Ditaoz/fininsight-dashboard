@@ -124,6 +124,7 @@ const SYSTEM_PROMPT = `Você é um analista financeiro experiente trabalhando em
 Sua tarefa: extrair os dados-chave do relatório e gerar UMA SEGUNDA OPINIÃO como analista — não copiar a opinião do relatório. Seja direto, técnico e em português.
 
 Regras:
+- OBRIGATÓRIO: Você deve sempre retornar pelo menos 1 item na lista 'assets'. Se o documento for genérico ou não tiver um ativo claro, crie um ativo com kind='other' e asset_name='Documento Geral'.
 - Detecte automaticamente o tipo de cada ativo coberto.
 - Para relatórios de agente fiduciário (Pentágono, Oliveira Trust, etc.), cada emissão é um "asset" com kind=fixed_income, asset_id=código do ativo (ex: NC0022005PN), asset_name=nome do emissor.
 - Para relatórios meramente informativos sem recomendação clara, use recommendation='monitor'.

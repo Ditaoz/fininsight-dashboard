@@ -71,6 +71,10 @@ export const uploadAndAnalyzePdf = createServerFn({ method: "POST" })
 
     try {
       const text = await extractPdfText(bytes);
+      if (!text || text.trim() === "") {
+        throw new Error("O PDF enviado não contém texto legível ou é composto apenas por imagens. Não foi possível analisá-lo.");
+      }
+
       await supabaseAdmin
         .from("reports")
         .update({ extracted_text: text, status: "analyzing" })
