@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AtivoAssetKeyRouteImport } from './routes/ativo.$assetKey'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -32,35 +38,46 @@ const AtivoAssetKeyRoute = AtivoAssetKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/login': typeof LoginRoute
   '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/login': typeof LoginRoute
   '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/login': typeof LoginRoute
   '/ativo/$assetKey': typeof AtivoAssetKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes' | '/ativo/$assetKey'
+  fullPaths: '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes' | '/ativo/$assetKey'
-  id: '__root__' | '/' | '/configuracoes' | '/ativo/$assetKey'
+  to: '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
+  id: '__root__' | '/' | '/configuracoes' | '/login' | '/ativo/$assetKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  LoginRoute: typeof LoginRoute
   AtivoAssetKeyRoute: typeof AtivoAssetKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  LoginRoute: LoginRoute,
   AtivoAssetKeyRoute: AtivoAssetKeyRoute,
 }
 export const routeTree = rootRouteImport
