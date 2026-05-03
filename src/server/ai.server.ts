@@ -43,7 +43,6 @@ const ANALYSIS_TOOL = {
           type: "array",
           description:
             "Lista de ativos abordados no relatório. Se o relatório cobrir vários (ex.: várias emissões), liste cada um. Se nenhum ativo claro, retorne um item com kind='other'.",
-          minItems: 1,
           items: {
             type: "object",
             properties: {
