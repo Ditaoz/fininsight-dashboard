@@ -39,16 +39,7 @@ function LoginPage() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-[600px] bg-sidebar/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Main Content */}
-      <main className="w-full max-w-sm z-10 flex flex-col items-center">
-        {/* Blended Logo at Top Center */}
-        <div className="mb-8 w-40 h-40 relative flex items-center justify-center">
-          <img 
-            src="/howling-wolf.png" 
-            alt="Howling Wolf Logo" 
-            className="w-full h-full object-contain mix-blend-screen opacity-90" 
-          />
-        </div>
-
+      <main className="w-full max-w-sm z-10 flex flex-col items-center mt-8">
         {/* Form */}
         <form onSubmit={submit} className="w-full space-y-6 bg-card/40 backdrop-blur-xl border border-border/30 p-8 rounded-3xl shadow-2xl">
           <div className="space-y-4">
