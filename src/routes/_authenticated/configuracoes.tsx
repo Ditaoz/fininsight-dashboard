@@ -116,8 +116,8 @@ function Settings() {
               </p>
             </div>
           )}
-        </section>
-      </main>
+      </section>
     </div>
   );
 }
+
