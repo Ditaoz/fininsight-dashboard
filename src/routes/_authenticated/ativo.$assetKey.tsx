@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Download, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { getAssetHistory, getReportSignedUrl } from "@/server/reports.functions";
+import { getAssetHistory, getReportSignedUrl } from "@/actions/reports";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 

@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Bot, CheckCircle2, AlertCircle } from "lucide-react";
-import { getTelegramStatus, saveTelegramToken, disableTelegram } from "@/server/reports.functions";
+import { getTelegramStatus, saveTelegramToken, disableTelegram } from "@/actions/reports";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 

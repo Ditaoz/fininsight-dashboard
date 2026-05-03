@@ -8,7 +8,7 @@ import {
   uploadAndAnalyzePdf,
   generateDailySummary,
   getReportSignedUrl,
-} from "@/server/reports.functions";
+} from "@/actions/reports";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
