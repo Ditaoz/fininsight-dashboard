@@ -9,9 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AtivoAssetKeyIndexRouteImport } from './routes/ativo.$assetKey.index'
+import { Route as AtivoAssetKeyRelatoriosRouteImport } from './routes/ativo.$assetKey.relatorios'
 
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -22,35 +30,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AtivoAssetKeyIndexRoute = AtivoAssetKeyIndexRouteImport.update({
+  id: '/ativo/$assetKey/',
+  path: '/ativo/$assetKey/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtivoAssetKeyRelatoriosRoute = AtivoAssetKeyRelatoriosRouteImport.update({
+  id: '/ativo/$assetKey/relatorios',
+  path: '/ativo/$assetKey/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey': typeof AtivoAssetKeyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes'
-  id: '__root__' | '/' | '/configuracoes'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  AtivoAssetKeyRelatoriosRoute: typeof AtivoAssetKeyRelatoriosRoute
+  AtivoAssetKeyIndexRoute: typeof AtivoAssetKeyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -65,13 +118,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ativo/$assetKey/': {
+      id: '/ativo/$assetKey/'
+      path: '/ativo/$assetKey'
+      fullPath: '/ativo/$assetKey/'
+      preLoaderRoute: typeof AtivoAssetKeyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ativo/$assetKey/relatorios': {
+      id: '/ativo/$assetKey/relatorios'
+      path: '/ativo/$assetKey/relatorios'
+      fullPath: '/ativo/$assetKey/relatorios'
+      preLoaderRoute: typeof AtivoAssetKeyRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  AtivoAssetKeyRelatoriosRoute: AtivoAssetKeyRelatoriosRoute,
+  AtivoAssetKeyIndexRoute: AtivoAssetKeyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
