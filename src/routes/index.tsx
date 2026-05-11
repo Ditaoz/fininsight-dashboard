@@ -133,7 +133,6 @@ function Dashboard() {
             </p>
           </div>
         </div>
-      <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
         {/* Drop zone */}
         <section
           onDragOver={(e) => {
