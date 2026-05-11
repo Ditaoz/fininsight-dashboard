@@ -117,37 +117,22 @@ function Dashboard() {
   const summary = todayData?.summary;
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b border-border-strong/60 bg-surface/40 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-md bg-gradient-to-br from-primary to-chart-2 grid place-items-center font-mono font-bold text-primary-foreground">
-              M
-            </div>
-            <div>
-              <h1 className="font-mono font-semibold tracking-tight">MESA DE ANÁLISE</h1>
-              <p className="text-[11px] text-muted-foreground font-mono uppercase tracking-widest">
-                {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/configuracoes">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <SettingsIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Configurações</span>
-                {telegram?.enabled ? (
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                ) : (
-                  <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
-                )}
-              </Button>
-            </Link>
+    <div className="min-h-full">
+      <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-mono text-2xl font-semibold tracking-tight">Painel do dia</h1>
+            <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest mt-1">
+              {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+              {telegram?.enabled && (
+                <span className="ml-3 inline-flex items-center gap-1.5 text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                  telegram on
+                </span>
+              )}
+            </p>
           </div>
         </div>
-      </header>
-
       <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
         {/* Drop zone */}
         <section
