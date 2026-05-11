@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/server/reports.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, Sparkles, Settings as SettingsIcon, Loader2, AlertTriangle, TrendingUp, Minus, TrendingDown, Eye } from "lucide-react";
+import { Upload, FileText, Sparkles, Loader2, AlertTriangle, TrendingUp, Minus, TrendingDown, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
