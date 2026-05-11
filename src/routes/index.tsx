@@ -113,6 +113,31 @@ function Dashboard() {
     [upload],
   );
 
+  // Polling automático do Telegram enquanto o painel estiver aberto
+  useEffect(() => {
+    if (!telegram?.enabled) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const res = await fetch("/api/public/telegram/poll", { method: "POST" });
+        const json = (await res.json()) as { processed?: number };
+        if (!cancelled && json.processed && json.processed > 0) {
+          toast.success(`Telegram: ${json.processed} novo(s) PDF(s)`);
+          queryClient.invalidateQueries({ queryKey: ["analyses", today] });
+          queryClient.invalidateQueries({ queryKey: ["sidebar-assets"] });
+        }
+      } catch {
+        // silencioso
+      }
+    };
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [telegram?.enabled, queryClient, today]);
+
   const analyses = todayData?.analyses ?? [];
   const summary = todayData?.summary;
 
