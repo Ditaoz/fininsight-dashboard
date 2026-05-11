@@ -124,7 +124,6 @@ const SYSTEM_PROMPT = `Você é um analista financeiro experiente trabalhando em
 Sua tarefa: extrair os dados-chave do relatório e gerar UMA SEGUNDA OPINIÃO como analista — não copiar a opinião do relatório. Seja direto, técnico e em português.
 
 Regras:
-- OBRIGATÓRIO: Você deve sempre retornar pelo menos 1 item na lista 'assets'. Se o documento for genérico ou não tiver um ativo claro, crie um ativo com kind='other' e asset_name='Documento Geral'.
 - Detecte automaticamente o tipo de cada ativo coberto.
 - Para relatórios de agente fiduciário (Pentágono, Oliveira Trust, etc.), cada emissão é um "asset" com kind=fixed_income, asset_id=código do ativo (ex: NC0022005PN), asset_name=nome do emissor.
 - Para relatórios meramente informativos sem recomendação clara, use recommendation='monitor'.
@@ -211,7 +210,6 @@ Analise e chame a ferramenta register_report_analysis.`;
 // ---- Daily summary -----------------------------------------------------------
 
 export interface DailySummaryResult {
-  macro_scenario: string;
   overview: string;
   priorities: Array<{ asset: string; action: string; reason: string }>;
   alerts: Array<{ asset: string; alert: string }>;
@@ -226,13 +224,9 @@ const SUMMARY_TOOL = {
     parameters: {
       type: "object",
       properties: {
-        macro_scenario: {
-          type: "string",
-          description: "Análise profunda do cenário macroeconômico atual (Brasil e Mundo) e da bolsa. Como proceder com os investimentos diante desse cenário? (Em português, 1 ou 2 parágrafos fortes).",
-        },
         overview: {
           type: "string",
-          description: "Resumo executivo específico da carteira analisada no dia, em português, 3-6 frases.",
+          description: "Resumo executivo da carteira no dia, em português, 3-6 frases.",
         },
         priorities: {
           type: "array",
@@ -268,7 +262,7 @@ const SUMMARY_TOOL = {
           additionalProperties: { type: "string" },
         },
       },
-      required: ["macro_scenario", "overview", "priorities", "alerts", "sentiment_by_class"],
+      required: ["overview", "priorities", "alerts", "sentiment_by_class"],
       additionalProperties: false,
     },
   },
@@ -312,7 +306,7 @@ export async function consolidateDailySummary(
         {
           role: "system",
           content:
-            "Você é um Analista Chefe de uma Mesa de Operações Institucional. Sua tarefa é consolidar todas as análises do dia em um 'Panorama do Dia' altamente técnico, opinativo e fundamentado. Avalie as informações captadas dos PDFs, cruze os dados, aponte tendências claras de mercado, demonstre convicção e seja criterioso. Não faça apenas um resumo genérico; dê um parecer técnico de especialista.",
+            "Você é um analista de carteira que consolida o panorama do dia em português. Seja direto e priorize o que importa.",
         },
         {
           role: "user",
