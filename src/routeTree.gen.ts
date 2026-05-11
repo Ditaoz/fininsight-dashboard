@@ -9,9 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AtivoAssetKeyIndexRouteImport } from './routes/ativo.$assetKey.index'
+import { Route as AtivoAssetKeyRelatoriosRouteImport } from './routes/ativo.$assetKey.relatorios'
+import { Route as ApiPublicTelegramPollRouteImport } from './routes/api/public/telegram.poll'
 
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -22,35 +31,92 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AtivoAssetKeyIndexRoute = AtivoAssetKeyIndexRouteImport.update({
+  id: '/ativo/$assetKey/',
+  path: '/ativo/$assetKey/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtivoAssetKeyRelatoriosRoute = AtivoAssetKeyRelatoriosRouteImport.update({
+  id: '/ativo/$assetKey/relatorios',
+  path: '/ativo/$assetKey/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTelegramPollRoute = ApiPublicTelegramPollRouteImport.update({
+  id: '/api/public/telegram/poll',
+  path: '/api/public/telegram/poll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
+  '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey/'
+    | '/api/public/telegram/poll'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes'
-  id: '__root__' | '/' | '/configuracoes'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey'
+    | '/api/public/telegram/poll'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/relatorios'
+    | '/ativo/$assetKey/relatorios'
+    | '/ativo/$assetKey/'
+    | '/api/public/telegram/poll'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  AtivoAssetKeyRelatoriosRoute: typeof AtivoAssetKeyRelatoriosRoute
+  AtivoAssetKeyIndexRoute: typeof AtivoAssetKeyIndexRoute
+  ApiPublicTelegramPollRoute: typeof ApiPublicTelegramPollRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -65,12 +131,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ativo/$assetKey/': {
+      id: '/ativo/$assetKey/'
+      path: '/ativo/$assetKey'
+      fullPath: '/ativo/$assetKey/'
+      preLoaderRoute: typeof AtivoAssetKeyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ativo/$assetKey/relatorios': {
+      id: '/ativo/$assetKey/relatorios'
+      path: '/ativo/$assetKey/relatorios'
+      fullPath: '/ativo/$assetKey/relatorios'
+      preLoaderRoute: typeof AtivoAssetKeyRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/poll': {
+      id: '/api/public/telegram/poll'
+      path: '/api/public/telegram/poll'
+      fullPath: '/api/public/telegram/poll'
+      preLoaderRoute: typeof ApiPublicTelegramPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  AtivoAssetKeyRelatoriosRoute: AtivoAssetKeyRelatoriosRoute,
+  AtivoAssetKeyIndexRoute: AtivoAssetKeyIndexRoute,
+  ApiPublicTelegramPollRoute: ApiPublicTelegramPollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

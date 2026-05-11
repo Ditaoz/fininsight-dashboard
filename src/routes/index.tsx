@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/server/reports.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, Sparkles, Settings as SettingsIcon, Loader2, AlertTriangle, TrendingUp, Minus, TrendingDown, Eye } from "lucide-react";
+import { Upload, FileText, Sparkles, Loader2, AlertTriangle, TrendingUp, Minus, TrendingDown, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -113,42 +113,51 @@ function Dashboard() {
     [upload],
   );
 
+  // Polling automático do Telegram enquanto o painel estiver aberto
+  useEffect(() => {
+    if (!telegram?.enabled) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const res = await fetch("/api/public/telegram/poll", { method: "POST" });
+        const json = (await res.json()) as { processed?: number };
+        if (!cancelled && json.processed && json.processed > 0) {
+          toast.success(`Telegram: ${json.processed} novo(s) PDF(s)`);
+          queryClient.invalidateQueries({ queryKey: ["analyses", today] });
+          queryClient.invalidateQueries({ queryKey: ["sidebar-assets"] });
+        }
+      } catch {
+        // silencioso
+      }
+    };
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [telegram?.enabled, queryClient, today]);
+
   const analyses = todayData?.analyses ?? [];
   const summary = todayData?.summary;
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="border-b border-border-strong/60 bg-surface/40 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-md bg-gradient-to-br from-primary to-chart-2 grid place-items-center font-mono font-bold text-primary-foreground">
-              M
-            </div>
-            <div>
-              <h1 className="font-mono font-semibold tracking-tight">MESA DE ANÁLISE</h1>
-              <p className="text-[11px] text-muted-foreground font-mono uppercase tracking-widest">
-                {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/configuracoes">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <SettingsIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Configurações</span>
-                {telegram?.enabled ? (
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                ) : (
-                  <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
-                )}
-              </Button>
-            </Link>
+    <div className="min-h-full">
+      <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-mono text-2xl font-semibold tracking-tight">Painel do dia</h1>
+            <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest mt-1">
+              {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+              {telegram?.enabled && (
+                <span className="ml-3 inline-flex items-center gap-1.5 text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                  telegram on
+                </span>
+              )}
+            </p>
           </div>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
         {/* Drop zone */}
         <section
           onDragOver={(e) => {
