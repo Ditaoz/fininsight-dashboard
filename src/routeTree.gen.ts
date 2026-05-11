@@ -14,6 +14,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AtivoAssetKeyIndexRouteImport } from './routes/ativo.$assetKey.index'
 import { Route as AtivoAssetKeyRelatoriosRouteImport } from './routes/ativo.$assetKey.relatorios'
+import { Route as ApiPublicTelegramPollRouteImport } from './routes/api/public/telegram.poll'
 
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
@@ -40,6 +41,11 @@ const AtivoAssetKeyRelatoriosRoute = AtivoAssetKeyRelatoriosRouteImport.update({
   path: '/ativo/$assetKey/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelegramPollRoute = ApiPublicTelegramPollRouteImport.update({
+  id: '/api/public/telegram/poll',
+  path: '/api/public/telegram/poll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
   '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
   '/ativo/$assetKey': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/ativo/$assetKey/relatorios': typeof AtivoAssetKeyRelatoriosRoute
   '/ativo/$assetKey/': typeof AtivoAssetKeyIndexRoute
+  '/api/public/telegram/poll': typeof ApiPublicTelegramPollRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,6 +80,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/ativo/$assetKey/relatorios'
     | '/ativo/$assetKey/'
+    | '/api/public/telegram/poll'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -78,6 +88,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/ativo/$assetKey/relatorios'
     | '/ativo/$assetKey'
+    | '/api/public/telegram/poll'
   id:
     | '__root__'
     | '/'
@@ -85,6 +96,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/ativo/$assetKey/relatorios'
     | '/ativo/$assetKey/'
+    | '/api/public/telegram/poll'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,6 +105,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   AtivoAssetKeyRelatoriosRoute: typeof AtivoAssetKeyRelatoriosRoute
   AtivoAssetKeyIndexRoute: typeof AtivoAssetKeyIndexRoute
+  ApiPublicTelegramPollRoute: typeof ApiPublicTelegramPollRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AtivoAssetKeyRelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/telegram/poll': {
+      id: '/api/public/telegram/poll'
+      path: '/api/public/telegram/poll'
+      fullPath: '/api/public/telegram/poll'
+      preLoaderRoute: typeof ApiPublicTelegramPollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -141,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   AtivoAssetKeyRelatoriosRoute: AtivoAssetKeyRelatoriosRoute,
   AtivoAssetKeyIndexRoute: AtivoAssetKeyIndexRoute,
+  ApiPublicTelegramPollRoute: ApiPublicTelegramPollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
