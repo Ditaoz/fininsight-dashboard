@@ -49,10 +49,15 @@ export const Route = createRootRoute({
           "Receba PDFs de relatórios de ações, FIIs, cripto e renda fixa, extraia dados, gere análise por IA e veja o panorama do dia.",
       },
       { name: "author", content: "Mesa de Análise" },
-      { property: "og:title", content: "Mesa de Análise" },
-      { property: "og:description", content: "Análise diária da sua carteira com IA." },
+      { property: "og:title", content: "Mesa de Análise — Relatórios financeiros com IA" },
+      { property: "og:description", content: "FinInsight Dashboard processes PDF financial reports from Telegram into actionable investment insights." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Mesa de Análise — Relatórios financeiros com IA" },
+      { name: "description", content: "FinInsight Dashboard processes PDF financial reports from Telegram into actionable investment insights." },
+      { name: "twitter:description", content: "FinInsight Dashboard processes PDF financial reports from Telegram into actionable investment insights." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7786c740-22c7-4b4c-b87a-d62c28ea7390/id-preview-1d18a754--1dd4156a-e50d-4b53-af90-53b7a81b34d7.lovable.app-1778500964626.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7786c740-22c7-4b4c-b87a-d62c28ea7390/id-preview-1d18a754--1dd4156a-e50d-4b53-af90-53b7a81b34d7.lovable.app-1778500964626.png" },
     ],
     links: [
       {
